@@ -24,17 +24,14 @@ word parsing
 	}
 }*/
 
+
+
 function checkLetters (word, attempt) {
 	var out = "";
 	var usedMisplacedLtrIndexes = new Array;
 	for(i=0;i<attempt.length;++i){
-		console.log("checking letter attempt["+i+"] "+attempt[i]);
 		var x = word.indexOf(attempt.charAt(i));
-		console.log("word.indexOf() gives: "+x);
-		if(x==i) {
-			console.log("x==i");
-			out = out+'G';
-		}
+		if(word[i]==attempt[i]) out = out+'G';
 		else if(x==-1) out = out + 'w';
 		else {
 			if(usedMisplacedLtrIndexes.indexOf(x)==-1){
