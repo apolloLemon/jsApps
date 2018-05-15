@@ -1,0 +1,361 @@
+<html>
+<script>
+var fsdMassNew;
+var massOptimalNew;
+var maxFuelNew;
+var massEmptyNew;
+var massFullNew;
+var maxJumpMass;
+var maxJumpMassNew;
+
+var massEmpty;
+var massFull;
+var massFuel;
+var fsdR;
+var fsdC;
+var fsdFuel;
+var massOptimal;
+var fsdMass;
+
+function giveresult() {
+	console.log("giveresult");
+	var decimal_acc = 8;
+	var decimal_acc_med = 2;
+	var decimal_acc_low = 1;
+
+	massEmpty = parseFloat(document.getElementById("iEmptyM").value) || 0;
+	massFull = parseFloat(document.getElementById("iFullM").value) || massEmpty;
+	massFuel = parseFloat(document.getElementById("iFuelM").value) || 0;
+	massOptimal = parseFloat(document.getElementById("iOptiM").value) || 0;
+	fsdR = document.getElementById("iR").value || "A";
+	fsdC = parseFloat(document.getElementById("iC").value) || 2;
+	fsdFuel = parseFloat(document.getElementById("iFsdF").value) || 0;
+	fsdMass = parseFloat(document.getElementById("iFsdM").value) || 0;
+
+	var fsdMassMod;
+	var massOptimalMod;
+	var maxFuelMod;
+	var fsdMassChange;
+	var massOptimalChange;
+	var maxFuelChange;
+	if (document.getElementById("typePercentage").checked == true) {
+		fsdMassMod = parseFloat(document.getElementById("mFsdM").value)/100 || 0;
+		massOptimalMod = parseFloat(document.getElementById("mOptiM").value)/100 || 0;
+		maxFuelMod = parseFloat(document.getElementById("mFsdF").value)/100 || 0;
+		
+		fsdMassChange=fsdMassMod*fsdMass;
+		massOptimalChange=massOptimalMod*massOptimal;
+		maxFuelChange=fsdFuel*maxFuelMod;
+
+		fsdMassNew = roundNumber(fsdMass+fsdMassChange, decimal_acc_med);
+		massOptimalNew = roundNumber(massOptimal+massOptimalChange, decimal_acc_med);
+		maxFuelNew = roundNumber(fsdFuel+maxFuelChange, decimal_acc_med);
+	} else {
+		fsdMassNew = parseFloat(document.getElementById("mFsdM").value) || fsdMass;
+		massOptimalNew = parseFloat(document.getElementById("mOptiM").value) || massOptimal;
+		maxFuelNew= parseFloat(document.getElementById("mFsdF").value) || fsdFuel;
+
+		massOptimalNew = roundNumber(massOptimalNew, decimal_acc_low);
+
+		fsdMassChange=fsdMassNew-fsdMass;
+		massOptimalChange=massOptimalNew-massOptimal;
+		maxFuelChange= maxFuelNew-fsdFuel;
+	}
+	massEmptyNew= roundNumber(massEmpty+fsdMassChange, decimal_acc_low);
+	massFullNew= roundNumber(massFull+fsdMassChange, decimal_acc_low);
+
+	maxJumpMass = massEmpty - massFuel + fsdFuel;
+	maxJumpMassNew = massEmptyNew - massFuel + maxFuelNew;
+
+	var fsdE = ((fsdC-2)*0.15)+2;
+	var fsdM = 0.01;
+	switch(fsdR) {
+		case "a" :
+		case "A" :
+			fsdM = 0.012;
+			break;
+		case "b" :
+		case "B" :
+		case "d" :
+		case "D" :
+			fsdM = 0.01;
+			break;
+		case "c" :
+		case "C" :
+			fsdM = 0.08;
+			break;
+		case "e" :
+		case "E" :
+			fsdM = 0.011;
+			break;
+		default :
+			fsdM = 0.01;
+			break;
+	}
+
+	var a = roundNumber(massOptimal/massEmpty, decimal_acc);
+	var b = roundNumber(massOptimal/massFull, decimal_acc);
+	var c = roundNumber(massOptimal/maxJumpMass, decimal_acc);
+
+	var aa = roundNumber(massOptimalNew/massEmptyNew, decimal_acc);
+	var ab = roundNumber(massOptimalNew/massFullNew, decimal_acc);
+	var ac = roundNumber(massOptimalNew/maxJumpMassNew, decimal_acc);
+
+	// var ba = aa/a;
+	// var bb = ab/b;
+
+	var z_old = roundNumber(Math.pow(fsdFuel/fsdM, 1/fsdE), decimal_acc);
+	var z = roundNumber(Math.pow(maxFuelNew/fsdM, 1/fsdE), decimal_acc);
+	var za = roundNumber(z_old*a, decimal_acc_med);
+	var zb = roundNumber(z_old*b, decimal_acc_med);
+	var zc = roundNumber(z_old*c, decimal_acc_med);
+	var zaa = roundNumber(z*aa, decimal_acc_med);
+	var zab = roundNumber(z*ab, decimal_acc_med);
+	var zac = roundNumber(z*ac, decimal_acc_med);
+
+	var xa = roundNumber((zaa-za)/za*100, decimal_acc);
+	var xb = roundNumber((zab-zb)/zb*100, decimal_acc);
+	var xc = roundNumber((zac-zc)/zc*100, decimal_acc);
+
+	var ra = document.getElementById("currentRange");
+	ra.innerHTML= "Current Jump Range (Empty) = "+za;
+	var rb = document.getElementById("currentRangeFull");
+	rb.innerHTML= "Current Jump Range (Full) = "+zb;
+	var rc = document.getElementById("currentRangeMax");
+	rc.innerHTML= "Current Jump Range (Max) = "+zc;
+
+	var r0 = document.getElementById("newRange");
+	r0.innerHTML= "New Estimated Jump Range (Empty) = "+zaa;
+	var r1 = document.getElementById("newRangeFull");
+	r1.innerHTML= "New Estimated Jump Range (Full) = "+zab;
+	var r2 = document.getElementById("newRangeMax");
+	r2.innerHTML= "New Estimated Jump Range (Max) = "+zac;
+
+	/*--------------- Optimal Mass to Mass Ratios -----------
+	var r2 = document.getElementById("emptyoptimassratio");
+	r2.innerHTML= "Current optimalMass/emptyMass ratio = "+a;
+	var r3 = document.getElementById("newemptyoptimassratio");
+	r3.innerHTML= "Upgraded optimalMass/emptyMass ratio = "+aa;
+
+	var r4 = document.getElementById("fulloptimassratio");
+	r4.innerHTML= "Current optimalMass/fullMass ratio = "+b;
+	var r5 = document.getElementById("newfulloptimassratio");
+	r5.innerHTML= "Upgraded optimalMass/fullMass ratio = "+ab;
+
+	var r6 = document.getElementById("emptyratioupgrade");
+	r6.innerHTML= "empty ratio upgrade = "+ba;
+	var r7 = document.getElementById("fullratioupgrade");
+	r7.innerHTML= "full upgrade ratio = "+bb;
+	------------------------------------------------------*/
+	
+	var r8 = document.getElementById("RangeIncrease");
+	r8.innerHTML= "empty range increase (%) = "+xa;
+	var r9 = document.getElementById("RangeIncreaseFull");
+	r9.innerHTML= "full range increase (%) = "+xb;
+	var r10 = document.getElementById("RangeIncreaseMax");
+	r10.innerHTML= "max range increase (%) = "+xc;
+}
+
+function roundNumber (to_round, decimals) {
+	var roundfactor = Math.pow(10, decimals);
+	var rounded = Math.round(to_round*roundfactor)/roundfactor;
+	return rounded;
+}
+
+function applyChange () {
+	document.getElementById("iFsdF").value = maxFuelNew;
+	document.getElementById("iFsdM").value = fsdMassNew;
+	document.getElementById("iOptiM").value = massOptimalNew;
+	document.getElementById("iEmptyM").value = massEmptyNew;
+	document.getElementById("iFullM").value = massFullNew;
+	document.getElementById("mFsdM").value = "";
+	document.getElementById("mOptiM").value = "";
+	document.getElementById("mFsdF").value = "";
+}
+
+function storeStats () {
+	giveresult();
+	console.log("storingStats");
+	var expireinDays = 500;
+	createCookie("c_iEmptyM", massEmpty, expireinDays);
+	createCookie("c_iFullM", massFull, expireinDays);
+	createCookie("c_iFuelM", massFuel, expireinDays);
+	createCookie("c_iOptiM", massOptimal, expireinDays);
+	createCookie("c_iR", fsdR, expireinDays);
+	createCookie("c_iC", fsdC, expireinDays);
+	createCookie("c_iFsdF", fsdFuel, expireinDays);
+	createCookie("c_iFsdM", fsdMass, expireinDays);
+	console.log("storedStats");
+}
+
+function loadStats () {
+	console.log("loadingStats");
+	document.getElementById("iEmptyM").value = loadCookieValue("c_iEmptyM");
+	document.getElementById("iFullM").value = loadCookieValue("c_iFullM");
+	document.getElementById("iFuelM").value = loadCookieValue("c_iFuelM");
+	document.getElementById("iOptiM").value = loadCookieValue("c_iOptiM");
+	document.getElementById("iR").value = loadCookieValue("c_iR");
+	document.getElementById("iC").value = loadCookieValue("c_iC");
+	document.getElementById("iFsdF").value = loadCookieValue("c_iFsdF");
+	document.getElementById("iFsdM").value = loadCookieValue("c_iFsdM");
+	console.log("loadedStats");
+}
+
+function createCookie (c_name, c_value, exdays) {
+	console.log("storinngStat: "+c_name+" "+c_value);
+	var date = new Date();
+    date.setTime(date.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ date.toUTCString();
+    document.cookie = c_name + "=" + c_value + ";" + expires + ";path=/";
+    console.log("storedStat: "+ c_name + "  /"+ document.cookie +"/ "+expires);
+}
+
+function loadCookieValue (cookieID) {
+	console.log("loadingStat: "+ cookieID);
+	var cookieValueTitle = cookieID + "=";
+    var cookieArray = document.cookie.split(';');
+    for(var i = 0; i <cookieArray.length; i++) {
+        var c = cookieArray[i];
+        console.log("loadingStat: "+ cookieID +" for loop "+ i + " cookieArray " + c);
+        while (c.charAt(0)==' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(cookieValueTitle) == 0) {
+            return c.substring(cookieValueTitle.length,c.length);
+            console.log("loadedStat: "+ cookieID);
+        }
+    }
+    return "";
+}
+
+function clearStats () {
+	//todo
+}
+
+</script>
+
+<body>
+	Mass Empty : <input type="text" name="Empty" id="iEmptyM" /><br>
+	Mass Full : <input type="text" name="Full" id="iFullM" /> <span class="darktext">if blank = empty</span> <br>
+	Fuel Capacity : <input type="text" name="Fuel" id="iFuelM" /><br><br>
+	FSD Rating : <input type="text" name="fsdR" id="iR" /> <span class="darktext">A-E (not case sensitive)</span><br>
+	FSD Class : <input type="text" name="fsdC" id="iC" /> <span class="darktext">2 and up</span><br>
+	FSD Max Fuel : <input type="text" name="FSDfuel" id="iFsdF" /><br>
+	FSD Optimal Mass : <input type="text" name="Optimal" id="iOptiM" /><br>
+	FSD Mass : <input type="text" name="FSDMass" id="iFsdM" /><br><br>
+	FSD Mass Mod : <input type="text" name="FSDMassMod" id="mFsdM" /> <span class="darktext">+ if mod increases mass, - if it decreases if input mode is percentage</span><br>
+	FSD Optimal Mass Mod : <input type="text" name="FSDOptimalMassMod" id="mOptiM" /><br>
+	FSD Max Fuel Mod : <input type="text" name="FSDMaxFuelMod" id="mFsdF" /><br>
+	<span class="darktext"> Mod input mode : percentage <input type="checkbox" name="valueType" id="typePercentage" checked/> <br> else new stat value // Note: percentage is less accurate but generally is faster to type</span> <br> <br>
+
+	<input type="button" value="calcuate" onClick="giveresult()"><br><br>
+	
+	<p id="currentRange" class="darktext">current Range (Empty)</p>
+	<p id="RangeIncrease" class="darktext">range increase (Empty)</p>
+	<p id="newRange">new Range (Empty)</p>
+	<p id="currentRangeFull" class="darktext">current Range (Full)</p>
+	<p id="RangeIncreaseFull" class="darktext">range increase (Full)</p>
+	<p id="newRangeFull">new Range (Full)</p><br>
+	<p id="currentRangeMax" class="darktext">current Range (Max)</p>
+	<p id="RangeIncreaseMax" class="darktext">range increase (Max)</p>
+	<p id="newRangeMax">new Range (Max)</p><br>
+
+	<!-- Optimal Mass to Mass Ratio
+	<p id="emptyoptimassratio" class="darktext">OptimalMass/Mass ratio(Empty)
+	<p id="newemptyoptimassratio" class="darktext">New OptimalMass/Mass ratio(Empty)</p>
+	<p id="emptyratioupgrade" class="darktext"></p><br>
+	<p id="fulloptimassratio" class="darktext">OptimalMass/Mass ratio(Full)</p>
+	<p id="newfulloptimassratio" class="darktext">New OptimalMass/Mass ratio(Full)</p>
+	<p id="fullratioupgrade" class="darktext"></p><br>
+	-->
+
+	<input type="button" value="Apply FSD Mod" onClick="applyChange()"> <br><br> <input type="button" value="Save Ship Config" onClick="storeStats()"> <input type="button" value="Load Ship Config" onClick="loadStats()"> <span class="darktext">Save Ship Mass and FSD values in cookies</span> <br><br>
+
+	<span class="white">
+		<!-- <h3>Dafuq iz dis?</h3> -->
+		<h3>FSD Mod Calculation and Comparison Tool</h3>
+		<p> As the title says, this is the FSD Mod Calculator. The ultimate tool for anyone who's upgrading their FSD with an engineer. It features state of the art text input fields, the most beautiful black background ever seen on the Internet, the option to store values, and a standard font. Never has the Internet been so enjoyable. <br>
+		Simply enter the current stats of your craft (you can look them up in outfitting), then go to see what the Engineer has to offer, and punch their numbers in to the Mod fields. <br><br>
+		With update 5 and 6, I've tried to solve the 0.00 accuracy by rounding some numbers to 1, 2 or 8 decimal points before calculation. I tested with only 1 and 2 decimal accuracy, but the results were off, so nearly all background calculations have 8 decimals of accuracy, unless the ingame numbers are less accurate. <br>
+		When using percentages, calculations were off by a bit, and the errors accumulated over subsquent 'application and roll' loops. To resolve this, I included the option to enter the new values directly: this is a requires more typing, and typing less conveiant numbers, but is much more accurate and doesn't let errors accumulate over subsequent 'mod application and roll' loops. More importantly, it has revealed to me that the values displayed aren't the values used in calculations since I managed to get two identical sets of stats ingame, with different ranges, but that was a 1% change on a sidewinder which had an effect of an 0.01Ly error. <br>
+		</p>
+
+		<p> Credits: CMDR Myv.hs, a.k.a Pepys<br>
+		Extra Credits to <a href="https://coriolis.io">Coriolis.io</a> and <a href="http://www.edshipyard.com">Elite Dangerous Shipyard</a>. Thx for the multiplier and exponential values, I wouldn't of found them without digging through your code. </p>
+
+		<span class="darktext">
+			update 7:
+			<ul>
+				<li>added max range feature</li>
+			</ul>
+		</span>
+		<span class="darktext">
+			update 6:
+			<ul>
+				<li>added mod value input type selection</li>
+				<li>increase float calculation accuracy</li>
+			</ul>
+		</span>
+		<span class="darktext">
+			update 5:
+			<ul>
+				<li>used rounding in an attempt to improve calculation accuracy when compared to in game results</li>
+				<li>fixed moded fuel use being used for current range calculations</li>
+			</ul>
+		</span>
+		<span class="darktext">
+			update 4:
+			<ul>
+				<li>fixed "apply changes" to adjust empty and full mass</li>
+			</ul>
+		</span>
+		<span class="darktext">
+			update 3:
+			<ul>
+				<li>added Ship stats saving</li>
+				<li>updated CSS</li>
+				<li>updated HTML field IDs to be more explanatory</li>
+			</ul>
+		</span>
+		<span class="darktext">
+			Update 2:
+			<ul>
+				<li>added Apply Changes function</li>
+				<li>commented out 'Optimal Mass to Mass ratio' (DL source and remove comment tags to return functionality)</li>
+			</ul>
+		</span>
+		<span class="darktext"> 
+			Update 1: 
+			<ul>
+				<li>added max fuel mod field</li>
+				<li>added helpful text</li>
+			</ul>
+		</span>
+	</span>
+
+</body>
+<style type="text/css">
+body {
+	background-color: black;
+	color:#ff9933;
+	padding-left: 3%;
+	padding-right: 3%;
+	padding-top: 1%;
+}
+a {
+	color:green;
+}
+input[type=text] {
+	border: 3px;
+	background-color: #606060;
+	color:white;
+	padding-left: 5px;
+}
+.white {
+	color:white;
+}
+.darktext {
+	color:#757575;
+}
+</style>
+</html>
