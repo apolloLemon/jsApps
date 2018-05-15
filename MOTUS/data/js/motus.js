@@ -2,6 +2,7 @@ function turn () {
 	var a = getWord();
 	var b = getPlayedString();
 	listPlayedWord(b,checkLetters(a,b));
+	setCorrectLetters(correctLetters(a,b));
 }
 
 /*function setgame () {
@@ -24,19 +25,30 @@ word parsing
 	}
 }*/
 
-
+function correctLetters (word, attempt) {
+	var out = "";
+	for(i=0;i<word.length;++i){
+		if(word[i]==attempt[i]) {
+			out = out+word[i];
+		} else out = out+'-';
+	}
+	return out;
+}
 
 function checkLetters (word, attempt) {
 	var out = "";
-	var usedMisplacedLtrIndexes = new Array;
+	var usedLtrIndexes = new Array;
 	for(i=0;i<attempt.length;++i){
 		var x = word.indexOf(attempt.charAt(i));
-		if(word[i]==attempt[i]) out = out+'G';
+		if(word[i]==attempt[i]) {
+			usedLtrIndexes.push(i);
+			out = out+'G';
+		}
 		else if(x==-1) out = out + 'w';
 		else {
-			if(usedMisplacedLtrIndexes.indexOf(x)==-1){
+			if(usedLtrIndexes.indexOf(x)==-1){
 				out = out + 'o';
-				usedMisplacedLtrIndexes.push(x);
+				usedLtrIndexes.push(x);
 			} else {
 				out = out + 'w';
 			}
@@ -74,4 +86,11 @@ function getPlayedString () {
 }
 function getWord () {
 	return window.document.getElementById("word").value;
+}
+
+/*****************
+basic setfunctions
+*****************/
+function setCorrectLetters (ltrs){
+	window.document.getElementById("usrin").value = ltrs;
 }
