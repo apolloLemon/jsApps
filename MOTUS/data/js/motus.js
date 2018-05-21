@@ -1,8 +1,10 @@
 function turn () {
+	console.log("turn");
 	var a = getWord();
 	var b = getPlayedString();
 	listPlayedWord(b,checkLetters(a,b));
 	setCorrectLetters(correctLetters(a,b));
+	console.log(lettersOf(a));
 }
 
 /*function setgame () {
@@ -17,13 +19,14 @@ function turn () {
 /***********
 word parsing
 ***********/
-/*function lettersOf (word) { 
-	//2D array with letters of word number of each
-	var out[][];
+function lettersOf (word) { 
+	var out = new Array(26).fill(0);
 	for(i=0;i<word.length;i++){
-
+		index = word.charCodeAt(i)-65;
+		out[index]++;
 	}
-}*/
+	return out;
+}
 
 function correctLetters (word, attempt) {
 	var out = "";
@@ -77,6 +80,11 @@ function listPlayedWord (word, colors) {
 
 }
 
+/*****************
+playCheckFunctions
+*****************/
+//function checkWord () {
+//}
 
 /*****************
 basic getfunctions
