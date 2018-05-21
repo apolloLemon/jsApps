@@ -8,13 +8,13 @@
 		<h2>version "Devine mon mot"</h2>
 		<h3>MOTUS "guess my word" version</h3>
 		<p>
-			Mot &agrave; deviner : <input id="word" type="password"> (Word to guess)
+			Mot &agrave; deviner : <input id="word" type="password" oninput="this.value = this.value.toUpperCase();"> (Word to guess, 6-9 char)
 		</p>
 		<div class="gamearea">
 			<ul id="reps">
 				
 			</ul>
-			Essai :<input id="usrin" type="text">
+			Essai :<input id="usrin" type="text" oninput="this.value = this.value.toUpperCase();">
 			<input type="submit" onclick="turn()">
 		</div>
 	</body>
