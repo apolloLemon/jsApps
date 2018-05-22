@@ -2,9 +2,9 @@ function turn () {
 	console.log("turn");
 	var a = getWord();
 	var b = getPlayedString();
-	listPlayedWord(b,checkLetters(a,b));
-	setCorrectLetters(correctLetters(a,b));
 	console.log(lettersOf(a));
+	listPlayedWord(b,colourLetters(a,b));
+	setCorrectLetters(correctLetters(a,b));
 }
 
 /*function setgame () {
@@ -38,22 +38,34 @@ function correctLetters (word, attempt) {
 	return out;
 }
 
-function checkLetters (word, attempt) {
+function remainingLetters (word, attempt) {
+	var ltrs = lettersOf(word);
+	var corr = correctLetters(word,attempt);
+	for(i=0;i<corr.length;i++)
+		if(corr[i]!='-') 
+			ltrs[corr.charCodeAt(i)-65]--;
+
+	return ltrs;
+}
+
+function colourLetters (word, attempt) {
 	var out = "";
-	var usedLtrIndexes = new Array;
+	var letterlist = remainingLetters(word,attempt);
+	console.log(letterlist);
 	for(i=0;i<attempt.length;++i){
-		var x = word.indexOf(attempt.charAt(i));
+
 		if(word[i]==attempt[i]) {
-			usedLtrIndexes.push(i);
 			out = out+'G';
 		}
-		else if(x==-1) out = out + 'w';
+		else if(word.indexOf(attempt.charAt(i))==-1) out = out + 'w';
 		else {
-			if(usedLtrIndexes.indexOf(x)==-1){
-				out = out + 'o';
-				usedLtrIndexes.push(x);
+			var abcIndex = attempt.charCodeAt(i)-65;
+			if(letterlist[abcIndex]!=0){
+				console.log("letter availiable");
+				letterlist[abcIndex]--;
+				out = out +'o';
 			} else {
-				out = out + 'w';
+				out = out +'w';
 			}
 		}
 		console.log(out);
@@ -100,5 +112,6 @@ function getWord () {
 basic setfunctions
 *****************/
 function setCorrectLetters (ltrs){
-	window.document.getElementById("usrin").value = ltrs;
+	window.document.getElementById("usrin").value = "";
+	window.document.getElementById("usrin").placeholder = ltrs;
 }
