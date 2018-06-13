@@ -4,7 +4,7 @@ function turn () {
 	var b = getPlayedString();
 	console.log(lettersOf(a));
 	listPlayedWord(b,colourLetters(a,b));
-	setCorrectLetters(correctLetters(a,b));
+	setCorrectLetters(hint(a,correctLetters(a,b)));
 }
 
 /*function setgame () {
@@ -92,6 +92,26 @@ function listPlayedWord (word, colors) {
 
 }
 
+function hint (word, stringN) {
+	var archiv = getletterarchive();
+	var out = "";
+	out = out + word.charAt(0);
+	if(archiv.length == stringN.length){
+		for(i=1;i<stringN.length;i++){
+			if(stringN.charAt(i)=="-" && archiv.charAt(i)!="-")
+				out = out +	archiv.charAt(i);
+			else
+				out = out + stringN.charAt(i);
+		}
+	} else {
+		for(i=1;i<stringN.length;i++) {
+			out = out + stringN.charAt(i);
+		}
+	}
+	console.log(out);
+	return out;
+}
+
 /*****************
 playCheckFunctions
 *****************/
@@ -106,6 +126,9 @@ function getPlayedString () {
 }
 function getWord () {
 	return window.document.getElementById("word").value;
+}
+function getletterarchive () {
+	return window.document.getElementById("usrin").placeholder;
 }
 
 /*****************
